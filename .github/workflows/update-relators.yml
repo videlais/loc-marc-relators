@@ -1,0 +1,55 @@
+name: Update Bundled Relators Data
+
+on:
+  schedule:
+    # Run at 00:00 UTC on the 1st of every month
+    - cron: '0 0 1 * *'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch latest relators from Library of Congress
+        run: npx tsx scripts/update-data.ts
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet src/data/relators.ts; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            UPDATED=$(grep '// Last updated:' src/data/relators.ts | awk '{print $NF}')
+            echo "date=$UPDATED" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create pull request
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: 'chore(data): update bundled MARC relators (${{ steps.changes.outputs.date }})'
+          branch: automated/update-relators-${{ steps.changes.outputs.date }}
+          title: 'chore(data): update bundled MARC relators (${{ steps.changes.outputs.date }})'
+          body: |
+            Automated monthly update of the bundled MARC relators vocabulary from the [Library of Congress](https://id.loc.gov/vocabulary/relators.json).
+
+            Changes were detected in `src/data/relators.ts`. Please review the diff before merging.
+          labels: automated, data-update
