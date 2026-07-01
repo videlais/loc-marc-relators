@@ -1,6 +1,6 @@
 {
   "name": "loc-marc-relators",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A small wrapper around the U.S. Library of Congress' MARC Relator database",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,9 +13,9 @@
     "dist"
   ],
   "devDependencies": {
-    "@types/node": "^22.19.21",
-    "tsx": "^4.0.0",
-    "typescript": "^5.0.0"
+    "@types/node": "^26.1.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
   },
   "license": "MIT",
   "engines": {

@@ -1,5 +1,5 @@
 // AUTO-GENERATED — do not edit by hand.
-// Last updated: 2026-06-14
+// Last updated: 2026-07-01
 // Source: https://id.loc.gov/vocabulary/relators.json
 import type { MarcRelator } from '../types/MarcRelator.js';
 

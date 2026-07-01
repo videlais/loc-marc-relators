@@ -47,7 +47,30 @@ function get(url: string, redirects = 5): Promise<string> {
         }
         const chunks: Buffer[] = [];
         res.on('data', (chunk: Buffer) => chunks.push(chunk));
-        res.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+        res.on('end', () => {
+          const body = Buffer.concat(chunks).toString('utf8');
+          const contentType = res.headers['content-type'] ?? '';
+
+          if (res.statusCode !== 200) {
+            reject(
+              new Error(
+                `Failed to fetch ${url}: HTTP ${res.statusCode}\n${body.slice(0, 500)}`
+              )
+            );
+            return;
+          }
+
+          if (!contentType.includes('application/json')) {
+            reject(
+              new Error(
+                `Expected JSON from ${url} but received "${contentType}"\n${body.slice(0, 500)}`
+              )
+            );
+            return;
+          }
+
+          resolve(body);
+        });
         res.on('error', reject);
       })
       .on('error', reject);
@@ -57,7 +80,16 @@ function get(url: string, redirects = 5): Promise<string> {
 async function main(): Promise<void> {
   console.log(`Fetching ${SOURCE_URL} ...`);
   const raw = await get(SOURCE_URL);
-  const entries: LocRelatorEntry[] = JSON.parse(raw);
+  let entries: LocRelatorEntry[];
+  try {
+    entries = JSON.parse(raw);
+  } catch (error) {
+    throw new Error(
+      `Failed to parse JSON from ${SOURCE_URL}: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+  }
 
   const relators: MarcRelator[] = entries
     .filter((e) => e['http://www.loc.gov/mads/rdf/v1#code'] !== undefined)
