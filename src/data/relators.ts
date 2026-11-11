@@ -1,5 +1,5 @@
 // AUTO-GENERATED — do not edit by hand.
-// Last updated: 2026-08-05
+// Last updated: 2026-10-01
 // Source: https://id.loc.gov/vocabulary/relators.json
 import type { MarcRelator } from '../types/MarcRelator.js';
 
@@ -478,6 +478,11 @@ const relators: MarcRelator[] = [
     "code": "djo",
     "label": "dj",
     "uri": "http://id.loc.gov/vocabulary/relators/djo"
+  },
+  {
+    "code": "DLC",
+    "label": "United States, Library of Congress",
+    "uri": "http://id.loc.gov/vocabulary/organizations/dlc"
   },
   {
     "code": "dln",
